@@ -1,74 +1,100 @@
-//target all elements to save to constants
+// === Target all elements ===
 const page1btn = document.querySelector("#page1btn");
 const page2btn = document.querySelector("#page2btn");
 const page3btn = document.querySelector("#page3btn");
 const page4btn = document.querySelector("#page4btn");
 const page5btn = document.querySelector("#page5btn");
 
-var allpages = document.querySelectorAll(".page");
+const allpages = document.querySelectorAll(".page");
 const menuItemsList = document.querySelector("nav ul");
 const hamBtn = document.querySelector("#hamIcon");
-hamBtn.addEventListener("click", toggleMenus);
-//select all subtopic pages
-function hideall() { //function to hide all pages
-    for (let onepage of allpages) { //go through all subtopic pages
-        onepage.style.display = "none"; //hide it
+const logoHome = document.querySelector("#logoHome");
+const carouselWrapper = document.getElementById("carouselWrapper");
+const scoutIntro = document.getElementById("scoutIntro");
+
+// === Hide all subpages and homepage intro ===
+function hideall() {
+    for (let onepage of allpages) {
+        onepage.style.display = "none";
     }
+    carouselWrapper.style.display = "none";
+    scoutIntro.style.display = "none";
 }
-function show(pgno) { //function to show selected page no
+
+// === Show one subpage ===
+function show(pgno) {
     hideall();
-    //select the page based on the parameter passed in
-    let onepage = document.querySelector("#page" + pgno);
-    onepage.style.display = "block"; //show the page
+    document.querySelector("#page" + pgno).style.display = "block";
 }
-/*Listen for clicks on the buttons, assign anonymous
-eventhandler functions to call show function*/
-page1btn.addEventListener("click", function () {
-    show(1);
+
+// === Show homepage when logo is clicked ===
+logoHome.addEventListener("click", function () {
+    hideall();
+    carouselWrapper.style.display = "block";
+    scoutIntro.style.display = "block";
 });
-page2btn.addEventListener("click", function () {
-    show(2);
-});
-page3btn.addEventListener("click", function () {
-    show(3);
-});
-page4btn.addEventListener("click", function () {
-    show(4);
-});
-page5btn.addEventListener("click", function () {
-    show(5);
-});
+
+// === Button listeners ===
+page1btn.addEventListener("click", function () { show(1); });
+page2btn.addEventListener("click", function () { show(2); });
+page3btn.addEventListener("click", function () { show(3); });
+page4btn.addEventListener("click", function () { show(4); });
+page5btn.addEventListener("click", function () { show(5); });
+
+// === Start with homepage ===
 hideall();
+carouselWrapper.style.display = "block";
+scoutIntro.style.display = "block";
 
-
-function toggleMenus() { /*open and close menu*/
-    // if menuItemsList dont have the class "menuShow", add it, else remove it
+// === Toggle Menu for Mobile ===
+function toggleMenus() {
     menuItemsList.classList.toggle("menuShow");
-    // if menu is showing (has the class "menuShow")
-    if (menuItemsList.classList.contains("menuShow")) {
-        hamBtn.innerHTML = "Close Menu"; //change button text to chose menu
-    } else { //if menu NOT showing
-        hamBtn.innerHTML = "Open Menu"; //change button text open menu
-    }
+    hamBtn.innerHTML = menuItemsList.classList.contains("menuShow") ? "Close Menu" : "Open Menu";
 
     const btnSubmit = document.querySelector("#btnSubmit");
     const scorebox = document.querySelector("#scorebox");
-    var q1, q2, score = 0;
-    corrAnsArray = ["Robert Baden-Powell", "Be Prepared", 6, "President's Scout Award"];
+    const corrAnsArray = ["Robert Baden-Powell", "Be Prepared", 6, "President's Scout Award"];
+
     function CheckAns() {
-        score = 0; //reset score to 0, check ans and give score if correct
+        let score = 0;
         for (let i = 0; i < corrAnsArray.length; i++) {
-            CheckOneQn(i + 1, corrAnsArray[i]);
+            score += CheckOneQn(i + 1, corrAnsArray[i]) ? 1 : 0;
         }
-        scorebox.innerHTML = "Score:" + score;
+        scorebox.innerHTML = "Score: " + score;
     }
-    btnSubmit.addEventListener("click", CheckAns);
+
     function CheckOneQn(qnNo, CorrAns) {
-        qTemp = document.querySelector("input[name='q" + qnNo + "']:checked").value;
-        if (qTemp == CorrAns) score++;
-        console.log(qTemp); //check q1 value retrieved
+        const selected = document.querySelector("input[name='q" + qnNo + "']:checked");
+        return selected && selected.value === CorrAns;
     }
 
+    btnSubmit.addEventListener("click", CheckAns);
 }
+hamBtn.addEventListener("click", toggleMenus);
 
+// === Carousel logic ===
+const carouselTrack = document.getElementById("carouselTrack");
+const leftBtn = document.querySelector(".carousel-btn.left");
+const rightBtn = document.querySelector(".carousel-btn.right");
 
+let scrollAmount = 0;
+const slideWidth = carouselTrack.clientWidth;
+
+function autoScrollCarousel() {
+    scrollAmount += slideWidth;
+    if (scrollAmount >= carouselTrack.scrollWidth) scrollAmount = 0;
+    carouselTrack.scrollTo({ left: scrollAmount, behavior: "smooth" });
+}
+setInterval(autoScrollCarousel, 4000);
+
+rightBtn.addEventListener("click", () => {
+    scrollAmount += slideWidth;
+    if (scrollAmount >= carouselTrack.scrollWidth) scrollAmount = 0;
+    carouselTrack.scrollTo({ left: scrollAmount, behavior: "smooth" });
+});
+
+leftBtn.addEventListener("click", () => {
+    scrollAmount -= slideWidth;
+    if (scrollAmount < 0) scrollAmount = carouselTrack.scrollWidth - slideWidth;
+    carouselTrack.scrollTo({ left: scrollAmount, behavior: "smooth" });
+});
