@@ -73,31 +73,48 @@ hamBtn.addEventListener("click", toggleMenus);
     btnSubmit.addEventListener("click", CheckAns);
 
 // === Carousel logic ===
-const carouselTrack = document.getElementById("carouselTrack");
+const track = document.getElementById("carouselTrack");
 const leftBtn = document.querySelector(".carousel-btn.left");
 const rightBtn = document.querySelector(".carousel-btn.right");
+const slides = track.querySelectorAll("img");
 
-let scrollAmount = 0;
-const slideWidth = carouselTrack.clientWidth;
+let index = 0;
 
-function autoScrollCarousel() {
-    scrollAmount += slideWidth;
-    if (scrollAmount >= carouselTrack.scrollWidth) scrollAmount = 0;
-    carouselTrack.scrollTo({ left: scrollAmount, behavior: "smooth" });
+// Helper: Update the slide position
+function updateSlide() {
+  const slide = track.querySelector("img");
+  const slideWidth = slide.offsetWidth;
+  track.style.transform = `translateX(-${index * slideWidth}px)`;
 }
-setInterval(autoScrollCarousel, 4000);
+
+
+
+
+// Resize handling
+function handleResize() {
+  updateSlide();
+}
 
 rightBtn.addEventListener("click", () => {
-    scrollAmount += slideWidth;
-    if (scrollAmount >= carouselTrack.scrollWidth) scrollAmount = 0;
-    carouselTrack.scrollTo({ left: scrollAmount, behavior: "smooth" });
+  index = (index + 1) % slides.length;
+  updateSlide();
 });
 
 leftBtn.addEventListener("click", () => {
-    scrollAmount -= slideWidth;
-    if (scrollAmount < 0) scrollAmount = carouselTrack.scrollWidth - slideWidth;
-    carouselTrack.scrollTo({ left: scrollAmount, behavior: "smooth" });
+  index = (index - 1 + slides.length) % slides.length;
+  updateSlide();
 });
+
+// Auto-scroll
+setInterval(() => {
+  index = (index + 1) % slides.length;
+  updateSlide();
+}, 4000);
+
+// Setup
+window.addEventListener("resize", handleResize);
+window.addEventListener("load", handleResize);
+
 
 const blowBtn = document.getElementById("blowBtn");
 const meterFill = document.getElementById("meter-fill");

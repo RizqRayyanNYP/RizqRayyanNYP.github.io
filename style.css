@@ -165,48 +165,84 @@ button:disabled {
     box-shadow: none;
 }
 .carousel-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
-  width: 100%;
-  overflow: hidden;
-  margin: 20px auto;
-  max-width: 900px;
-}
-.carousel-container {
-  overflow-x: hidden;
-  width: 100%;
   max-width: 100%;
-  margin: auto;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.carousel-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  overflow: hidden;
 }
 
 .carousel-track {
   display: flex;
-  transition: transform 0.3s ease-in-out;
-  width: fit-content;
+  transition: transform 0.5s ease-in-out;
 }
 
 .carousel-track img {
   width: 100%;
-  max-width: 300px; /* Adjust for smaller screens */
+  max-height: 75vh;
   height: auto;
-  flex-shrink: 0;
+  flex: 0 0 100%;
   object-fit: cover;
   border-radius: 10px;
-  margin: 0 5px;
 }
+
 .carousel-btn {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(0, 0, 0, 0.5);
-  border: none;
+  background-color: rgba(0, 0, 0, 0.6);
   color: white;
-  font-size: 2rem;
-  padding: 0.5rem 1rem;
+  border: none;
   cursor: pointer;
-  z-index: 5;
+  z-index: 10;
+  padding: 8px 12px;
+  font-size: 1.2rem;
+  border-radius: 8px;
 }
-.carousel-btn.left { left: 10px; }
-.carousel-btn.right { right: 10px; }
+
+.carousel-btn.left {
+  left: 20px;
+}
+
+.carousel-btn.right {
+  right: 20px;
+}
+
+@media screen and (max-width: 800px) {
+  .carousel-container {
+    max-width: 90vw;
+  }
+
+  .carousel-track img {
+    width: 100%;
+    max-height: 60vh;
+  }
+
+  .carousel-btn {
+    font-size: 1rem;
+    padding: 5px 10px;
+  }
+
+  .carousel-btn.left {
+    left: 10px;
+  }
+
+  .carousel-btn.right {
+    right: 10px;
+  }
+}
+
+
+
 .intro-section {
   background: #2f2f2f;
   color: #fff;
