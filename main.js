@@ -50,10 +50,12 @@ scoutIntro.style.display = "block";
 function toggleMenus() {
     menuItemsList.classList.toggle("menuShow");
     hamBtn.innerHTML = menuItemsList.classList.contains("menuShow") ? "Close Menu" : "Open Menu";
+}
+hamBtn.addEventListener("click", toggleMenus);
 
-    const btnSubmit = document.querySelector("#btnSubmit");
+  const btnSubmit = document.querySelector("#btnSubmit");
     const scorebox = document.querySelector("#scorebox");
-    const corrAnsArray = ["Robert Baden-Powell", "Be Prepared", 6, "President's Scout Award"];
+    const corrAnsArray = ["Robert Baden-Powell", "Be Prepared", "6", "President's Scout Award"];
 
     function CheckAns() {
         let score = 0;
@@ -69,8 +71,6 @@ function toggleMenus() {
     }
 
     btnSubmit.addEventListener("click", CheckAns);
-}
-hamBtn.addEventListener("click", toggleMenus);
 
 // === Carousel logic ===
 const carouselTrack = document.getElementById("carouselTrack");
@@ -98,3 +98,58 @@ leftBtn.addEventListener("click", () => {
     if (scrollAmount < 0) scrollAmount = carouselTrack.scrollWidth - slideWidth;
     carouselTrack.scrollTo({ left: scrollAmount, behavior: "smooth" });
 });
+
+const blowBtn = document.getElementById("blowBtn");
+const meterFill = document.getElementById("meter-fill");
+const resultText = document.getElementById("fireResult");
+
+let meter = 0;
+let intervalId = null;
+
+// Extracted to reusable function
+function startBlowing() {
+  resultText.textContent = "";
+  clearInterval(intervalId); // prevent double intervals
+  intervalId = setInterval(() => {
+    if (meter < 100) {
+      meter += 1;
+      meterFill.style.width = meter + "%";
+    } else {
+      clearInterval(intervalId);
+    }
+  }, 50);
+}
+
+function stopBlowing() {
+  clearInterval(intervalId);
+
+  if (meter >= 40 && meter <= 60) {
+    resultText.textContent = "🔥 Perfect! The fire starts.";
+    resultText.style.color = "green";
+  } else if (meter < 40) {
+    resultText.textContent = "❄️ Too weak. Try blowing harder.";
+    resultText.style.color = "blue";
+  } else {
+    resultText.textContent = "💨 Too strong! You blew it out!";
+    resultText.style.color = "red";
+  }
+
+  meter = 0;
+  meterFill.style.width = "0%";
+}
+
+// Desktop Events
+blowBtn.addEventListener("mousedown", startBlowing);
+blowBtn.addEventListener("mouseup", stopBlowing);
+blowBtn.addEventListener("mouseleave", stopBlowing); // Optional
+
+// Mobile Events
+blowBtn.addEventListener("touchstart", function (e) {
+  e.preventDefault(); // Prevents double-firing
+  startBlowing();
+});
+blowBtn.addEventListener("touchend", function (e) {
+  e.preventDefault();
+  stopBlowing();
+});
+
