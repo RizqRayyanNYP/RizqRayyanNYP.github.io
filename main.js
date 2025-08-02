@@ -53,69 +53,192 @@ function toggleMenus() {
 }
 hamBtn.addEventListener("click", toggleMenus);
 
-  const btnSubmit = document.querySelector("#btnSubmit");
-    const scorebox = document.querySelector("#scorebox");
-    const corrAnsArray = ["Robert Baden-Powell", "Be Prepared", "6", "President's Scout Award"];
+// quiz
+  const quizQuestions = [
+  {
+    q: "Who founded the Scout Movement?",
+    options: ["Frank Cooper Sands", "Robert Baden-Powell", "Lord Nelson", "Ernest Shackleton"],
+    answer: "Robert Baden-Powell"
+  },
+  {
+    q: "What is the Scout Motto?",
+    options: ["Always Ready", "Help Others", "Be Prepared", "Do Your Best"],
+    answer: "Be Prepared"
+  },
+  {
+    q: "How many proficiency badges are there in Singapore Scouting?",
+    options: ["4", "5", "6", "7"],
+    answer: "6"
+  },
+  {
+    q: "What is the most prestigious award that a Singapore Scout is able to attain?",
+    options: ["Chief Commissioner's Award", "President's Scout Award", "National Service Badges"],
+    answer: "President's Scout Award"
+  }
+];
 
-    function CheckAns() {
-        let score = 0;
-        for (let i = 0; i < corrAnsArray.length; i++) {
-            score += CheckOneQn(i + 1, corrAnsArray[i]) ? 1 : 0;
-        }
-        scorebox.innerHTML = "Score: " + score;
+const quizContainer = document.getElementById("quizContainer");
+const btnSubmit = document.getElementById("btnSubmit");
+const btnReset = document.getElementById("btnReset");
+const scorebox = document.getElementById("scorebox");
+
+const audioCorrect = document.getElementById("audio-correct");
+const audioWrong = document.getElementById("audio-wrong");
+
+// Render Quiz
+function renderQuiz() {
+  quizContainer.innerHTML = "";
+  quizQuestions.forEach((item, idx) => {
+    const fieldset = document.createElement("fieldset");
+    const legend = document.createElement("legend");
+    legend.textContent = (idx + 1) + ". " + item.q;
+    fieldset.appendChild(legend);
+
+    item.options.forEach(option => {
+      const label = document.createElement("label");
+      label.classList.add("quiz-option");
+      label.innerHTML = `
+        <input type="radio" name="q${idx + 1}" value="${option}"> ${option}
+      `;
+      fieldset.appendChild(label);
+    });
+
+    quizContainer.appendChild(fieldset);
+  });
+}
+renderQuiz();
+
+// Event Delegation for Option Highlight
+quizContainer.addEventListener("click", function(e) {
+  if (e.target.type === "radio") {
+    // Remove highlight from all for this question
+    const name = e.target.name;
+    document.querySelectorAll(`input[name="${name}"]`).forEach(inp => {
+      inp.parentElement.classList.remove("selected-option");
+    });
+    // Highlight selected
+    e.target.parentElement.classList.add("selected-option");
+  }
+});
+
+// Submit Quiz
+btnSubmit.addEventListener("click", function() {
+  let score = 0;
+  let total = quizQuestions.length;
+  let answered = 0;
+  let allCorrect = true;
+
+  // Remove previous feedback classes first
+  document.querySelectorAll(".correct, .wrong").forEach(el => {
+    el.classList.remove("correct", "wrong");
+  });
+
+  quizQuestions.forEach((item, idx) => {
+    const sel = document.querySelector(`input[name="q${idx+1}"]:checked`);
+    if (sel) {
+      answered++;
+      if (sel.value === item.answer) {
+        score++;
+        sel.parentElement.classList.add("correct");
+      } else {
+        sel.parentElement.classList.add("wrong");
+        allCorrect = false;
+      }
+    } else {
+      allCorrect = false;
     }
+  });
 
-    function CheckOneQn(qnNo, CorrAns) {
-        const selected = document.querySelector("input[name='q" + qnNo + "']:checked");
-        return selected && selected.value === CorrAns;
+  // Feedback
+  if (answered < total) {
+    scorebox.textContent = "Please answer all questions!";
+  } else {
+    scorebox.textContent = `Score: ${score} / ${total}`;
+    // Play only one sound:
+    if (allCorrect) {
+      audioCorrect.currentTime = 0; audioCorrect.play();
+    } else {
+      audioWrong.currentTime = 0; audioWrong.play();
     }
+  }
+});
 
-    btnSubmit.addEventListener("click", CheckAns);
+// Reset Quiz Button
+btnReset.addEventListener("click", function() {
+  document.getElementById("quizForm").reset();
+  document.querySelectorAll(".selected-option, .correct, .wrong").forEach(el => {
+    el.classList.remove("selected-option", "correct", "wrong");
+  });
+  scorebox.textContent = "Not submitted";
+});
 
-// === Carousel logic ===
+// Event Delegation for Accessibility: also support keyboard navigation
+quizContainer.addEventListener("keyup", function(e) {
+  if (e.target.type === "radio" && e.key === "Enter") {
+    e.target.click();
+  }
+});
+
+// Carousel logic
 const track = document.getElementById("carouselTrack");
 const leftBtn = document.querySelector(".carousel-btn.left");
 const rightBtn = document.querySelector(".carousel-btn.right");
 const slides = track.querySelectorAll("img");
 
 let index = 0;
+let isAnimating = false;
 
-// Helper: Update the slide position
-function updateSlide() {
+// Animate to target slide
+function animateTo(newIndex) {
+  if (isAnimating) return;
+  isAnimating = true;
   const slide = track.querySelector("img");
   const slideWidth = slide.offsetWidth;
-  track.style.transform = `translateX(-${index * slideWidth}px)`;
+  const start = -index * slideWidth;
+  const end = -newIndex * slideWidth;
+  let startTime = null;
+
+  function step(ts) {
+    if (!startTime) startTime = ts;
+    const progress = Math.min((ts - startTime) / 400, 1); // 400ms duration
+    const current = start + (end - start) * progress;
+    track.style.transform = `translateX(${current}px)`;
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    } else {
+      index = newIndex;
+      track.style.transform = `translateX(${-index * slideWidth}px)`;
+      isAnimating = false;
+    }
+  }
+  requestAnimationFrame(step);
 }
-
-
-
 
 // Resize handling
 function handleResize() {
-  updateSlide();
+  // Snap to current position
+  const slide = track.querySelector("img");
+  const slideWidth = slide.offsetWidth;
+  track.style.transform = `translateX(${-index * slideWidth}px)`;
 }
 
 rightBtn.addEventListener("click", () => {
-  index = (index + 1) % slides.length;
-  updateSlide();
+  animateTo((index + 1) % slides.length);
 });
 
 leftBtn.addEventListener("click", () => {
-  index = (index - 1 + slides.length) % slides.length;
-  updateSlide();
+  animateTo((index - 1 + slides.length) % slides.length);
 });
 
 // Auto-scroll
 setInterval(() => {
-  index = (index + 1) % slides.length;
-  updateSlide();
+  animateTo((index + 1) % slides.length);
 }, 4000);
 
-// Setup
 window.addEventListener("resize", handleResize);
 window.addEventListener("load", handleResize);
 
-
+// Fire game
 const blowBtn = document.getElementById("blowBtn");
 const meterFill = document.getElementById("meter-fill");
 const resultText = document.getElementById("fireResult");
@@ -123,7 +246,7 @@ const resultText = document.getElementById("fireResult");
 let meter = 0;
 let intervalId = null;
 
-// Extracted to reusable function
+
 function startBlowing() {
   resultText.textContent = "";
   clearInterval(intervalId); // prevent double intervals
@@ -158,7 +281,6 @@ function stopBlowing() {
 // Desktop Events
 blowBtn.addEventListener("mousedown", startBlowing);
 blowBtn.addEventListener("mouseup", stopBlowing);
-blowBtn.addEventListener("mouseleave", stopBlowing); // Optional
 
 // Mobile Events
 blowBtn.addEventListener("touchstart", function (e) {
