@@ -1,0 +1,13 @@
+{ "name": "Background of Scouting",
+"short_name": "Scouting",
+"start_url": "index.html",
+"display": "standalone",
+"background_color": "#ffffff",
+"theme_color": "#00FF00",
+"icons": [
+{ "src": "knot.png",
+"sizes": "64x64",
+"type": "image/png"
+}
+]
+}
