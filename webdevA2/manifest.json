@@ -8,6 +8,11 @@
 { "src": "images/knot.png",
 "sizes": "64x64",
 "type": "image/png"
-}
+},
+    {
+      "src": "images/knot2.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
 ]
 }
